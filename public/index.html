@@ -18,14 +18,11 @@ iframe{position:fixed;inset:0;width:100%;height:100%;border:0;display:none}
 .stats{opacity:.6;font-size:.95rem}#qr{margin:1.6rem auto .4rem;padding:10px;background:#fff;border-radius:10px}
 .scan{font-size:.8rem;opacity:.55}.foot{font-style:italic;opacity:.5;margin-top:1.4rem}#restart{color:#fff8;font-size:.8rem;margin-top:.8rem}
 .meme{position:relative;width:260px}.meme video{width:100%;border-radius:14px;box-shadow:0 10px 40px #0008;display:block}
-.mic{display:block;position:absolute;right:-34px;top:70px;width:10px;height:22px;background:#444;border-radius:2px;animation:drop 2.4s ease-in infinite}
-.mic:before{content:"";position:absolute;left:-4px;top:-14px;width:18px;height:18px;background:#999;border-radius:50%}
-@keyframes drop{0%{transform:translateY(-60vh);opacity:1}45%{transform:translateY(40px)}55%{transform:translateY(30px)}65%,90%{transform:translateY(40px);opacity:1}100%{opacity:0}}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script></head><body>
 <div id="live" class="badge">LIVE</div><div id="timer" class="badge">00:00</div>
 <div id="intro"><h1>KOFI</h1><div class="sub">AI Cofounder · Built tonight at Grok Bot Accra Builders Night</div>
 <div class="by">by Lloyd</div><button id="go">Bring out Kofi</button><div id="msg"></div></div>
-<div id="outro"><h2>Thanks for spending the evening with Kofi.</h2><div class="night">Goodnight, Accra 🌙</div><div class="meme"><video src="battle-cat.mp4" autoplay muted loop playsinline></video><i class="mic"></i></div><div class="stats">Call duration: <span id="dur">00:00</span></div>
+<div id="outro"><h2>Thanks for spending the evening with Kofi.</h2><div class="night">Goodnight, Accra 🌙</div><div class="meme"><video src="battle-cat.mp4" autoplay muted loop playsinline></video></div><div class="stats">Call duration: <span id="dur">00:00</span></div>
 <div id="qr"></div><div class="scan">Scan to connect on LinkedIn</div><div class="foot">Lloyd had the idea. AI did the heavy lifting.</div>
 <a href="#" id="restart">Restart (R)</a></div>
 <iframe id="stage" allow="camera; microphone; autoplay; fullscreen"></iframe><button id="end">End call (E)</button>
@@ -34,8 +31,8 @@ const OUTRO_URL = "https://www.linkedin.com/in/emmanuel-asomaning-ntim/";
 let convId = null, tick = null;
 new QRCode(qr, { text: OUTRO_URL, width: 140, height: 140 });
 const showOutro = () => { outro.querySelector('video').play(); dur.textContent = timer.textContent; intro.style.display = 'none'; outro.style.display = 'flex'; };
-const restart = () => { outro.style.display = 'none'; intro.style.display = 'flex'; timer.textContent = '00:00'; show(''); };
-restart.onclick = e => { e.preventDefault(); restart(); };
+const goIntro = () => { outro.style.display = 'none'; intro.style.display = 'flex'; timer.textContent = '00:00'; show(''); };
+document.getElementById('restart').onclick = e => { e.preventDefault(); goIntro(); };
 const show = (t, isErr) => { msg.textContent = t; msg.className = isErr ? 'err' : ''; };
 go.onclick = async () => {
   go.disabled = true; show('Waking Kofi up...');
@@ -66,7 +63,7 @@ addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
   if (k === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
   if (k === 'e') endCall();
-  if (k === 'r' && outro.style.display === 'flex') restart();
+  if (k === 'r' && outro.style.display === 'flex') goIntro();
   if (k === 'o' && intro.style.display !== 'none' && !convId) showOutro();
 });
 </script></body></html>
