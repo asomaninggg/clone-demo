@@ -1,0 +1,30 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>KOFI</title><style>
+html,body{margin:0;height:100%;background:#000;color:#fff;font-family:system-ui,sans-serif;overflow:hidden}
+#intro{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+h1{font-size:18vw;margin:0;letter-spacing:.1em;animation:glow 3s ease-in-out infinite}
+@keyframes glow{50%{text-shadow:0 0 40px #fff6,0 0 80px #fff3}}
+p{opacity:.7;font-size:1.3rem}
+button{margin-top:2rem;padding:1rem 2.5rem;font-size:1.2rem;border:1px solid #fff;background:none;color:#fff;border-radius:999px;cursor:pointer}
+button:hover{background:#fff;color:#000}
+#live{position:fixed;top:20px;right:20px;background:#e00;padding:6px 14px;border-radius:4px;font-weight:700;animation:pulse 1.5s infinite;z-index:2}
+@keyframes pulse{50%{opacity:.4}}
+#err{color:#f55;margin-top:1rem}
+iframe{position:fixed;inset:0;width:100%;height:100%;border:0;display:none}
+</style></head><body>
+<div id="live">LIVE</div>
+<div id="intro"><h1>KOFI</h1><p>Built tonight at Grok Bot Accra Builders Night</p>
+<button id="go">Bring out Kofi</button><div id="err"></div></div>
+<iframe id="stage" allow="camera; microphone; autoplay"></iframe>
+<script>
+go.onclick = async () => {
+  go.disabled = true; err.textContent = '';
+  try {
+    const r = await fetch('/start', { method: 'POST' });
+    const d = await r.json();
+    if (!r.ok || !d.conversation_url) throw new Error(d.message || d.error || 'Could not start conversation');
+    stage.onload = () => { intro.style.display = 'none'; stage.style.display = 'block'; };
+    stage.src = d.conversation_url;
+  } catch (e) { err.textContent = 'Error: ' + e.message; go.disabled = false; }
+};
+</script></body></html>
