@@ -7,7 +7,7 @@ app.post('/start', async (req, res) => {
     const r = await fetch('https://tavusapi.com/v2/conversations', {
       method: 'POST',
       headers: { 'x-api-key': process.env.TAVUS_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ persona_id: process.env.PERSONA_ID, properties: { max_call_duration: 240 } }),
+      body: JSON.stringify({ persona_id: process.env.PERSONA_ID, properties: { max_call_duration: 240, enable_closed_captions: true } }),
     });
     res.status(r.status).json(await r.json());
   } catch (e) {
