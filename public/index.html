@@ -56,7 +56,7 @@ go.onclick = async () => {
 async function endCall() {
   if (!convId) return;
   const id = convId; convId = null; clearInterval(tick);
-  stage.src = 'about:blank'; stage.style.display = end.style.display = timer.style.display = 'none';
+  stage.onload = null; stage.src = 'about:blank'; stage.style.display = end.style.display = timer.style.display = 'none';
   live.classList.remove('on'); go.disabled = false; showOutro();
   try { const r = await fetch('/end/' + id, { method: 'POST' }); if (!r.ok) show('Call closed, but Tavus did not confirm the end.', true); }
   catch (e) { show('Error ending call: ' + e.message, true); }
