@@ -6,4 +6,6 @@ A live Tavus AI avatar (Kofi) on a fullscreen stage.
 2. `cp .env.example .env` and fill in `TAVUS_KEY` and `PERSONA_ID`
 3. `npm start`, then open http://localhost:3000 and click "Bring out Kofi"
 
+Shortcuts: `F` toggles fullscreen, `E` ends the call. Calls auto-stop after 4 minutes (`max_call_duration: 240`).
+
 Requires Node 18+.

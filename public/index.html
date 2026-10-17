@@ -1,30 +1,54 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><title>KOFI</title><style>
-html,body{margin:0;height:100%;background:#000;color:#fff;font-family:system-ui,sans-serif;overflow:hidden}
+<html><head><meta charset="utf-8"><title>KOFI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;800&display=swap" rel="stylesheet"><style>
+html,body{margin:0;height:100%;color:#fff;font-family:Inter,system-ui,sans-serif;overflow:hidden;background:radial-gradient(ellipse at center,#16161d 0%,#050507 70%)}
 #intro{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-h1{font-size:18vw;margin:0;letter-spacing:.1em;animation:glow 3s ease-in-out infinite}
-@keyframes glow{50%{text-shadow:0 0 40px #fff6,0 0 80px #fff3}}
-p{opacity:.7;font-size:1.3rem}
-button{margin-top:2rem;padding:1rem 2.5rem;font-size:1.2rem;border:1px solid #fff;background:none;color:#fff;border-radius:999px;cursor:pointer}
-button:hover{background:#fff;color:#000}
-#live{position:fixed;top:20px;right:20px;background:#e00;padding:6px 14px;border-radius:4px;font-weight:700;animation:pulse 1.5s infinite;z-index:2}
-@keyframes pulse{50%{opacity:.4}}
-#err{color:#f55;margin-top:1rem}
+h1{font-size:16vw;font-weight:800;margin:0;letter-spacing:.08em;background:linear-gradient(180deg,#fff,#8a8aa0);-webkit-background-clip:text;color:transparent}
+.sub{font-weight:300;opacity:.75;font-size:1.25rem;margin:.5rem 0}.by{font-size:.85rem;opacity:.45}
+button{font:500 1rem Inter,sans-serif;padding:.9rem 2.2rem;border:1px solid #fff3;background:#ffffff0d;color:#fff;border-radius:999px;cursor:pointer;transition:.2s}
+button:hover{background:#fff;color:#000}#go{margin-top:2.5rem}
+.badge{position:fixed;top:20px;z-index:3;padding:6px 14px;border-radius:6px;font:600 .85rem Inter,sans-serif;letter-spacing:.08em}
+#live{right:20px;background:#e11d48}#live.on{animation:pulse 1.5s infinite}@keyframes pulse{50%{opacity:.35}}
+#timer{right:96px;background:#0009;display:none;font-variant-numeric:tabular-nums}
+#end{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:3;display:none;border-color:#e11d48;background:#e11d48}
+#msg{margin-top:1rem;min-height:1.4em;opacity:.8}#msg.err{color:#f87171;opacity:1}
 iframe{position:fixed;inset:0;width:100%;height:100%;border:0;display:none}
 </style></head><body>
-<div id="live">LIVE</div>
-<div id="intro"><h1>KOFI</h1><p>Built tonight at Grok Bot Accra Builders Night</p>
-<button id="go">Bring out Kofi</button><div id="err"></div></div>
-<iframe id="stage" allow="camera; microphone; autoplay"></iframe>
+<div id="live" class="badge">LIVE</div><div id="timer" class="badge">00:00</div>
+<div id="intro"><h1>KOFI</h1><div class="sub">AI Cofounder · Built tonight at Grok Bot Accra Builders Night</div>
+<div class="by">by Lloyd</div><button id="go">Bring out Kofi</button><div id="msg"></div></div>
+<iframe id="stage" allow="camera; microphone; autoplay; fullscreen"></iframe><button id="end">End call (E)</button>
 <script>
+let convId = null, tick = null;
+const show = (t, isErr) => { msg.textContent = t; msg.className = isErr ? 'err' : ''; };
 go.onclick = async () => {
-  go.disabled = true; err.textContent = '';
+  go.disabled = true; show('Waking Kofi up...');
   try {
     const r = await fetch('/start', { method: 'POST' });
     const d = await r.json();
     if (!r.ok || !d.conversation_url) throw new Error(d.message || d.error || 'Could not start conversation');
-    stage.onload = () => { intro.style.display = 'none'; stage.style.display = 'block'; };
+    convId = d.conversation_id;
+    stage.onload = () => {
+      intro.style.display = 'none'; stage.style.display = end.style.display = timer.style.display = 'block';
+      live.classList.add('on'); const t0 = Date.now();
+      tick = setInterval(() => { const s = Math.floor((Date.now() - t0) / 1000);
+        timer.textContent = String(s / 60 | 0).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }, 1000);
+    };
     stage.src = d.conversation_url;
-  } catch (e) { err.textContent = 'Error: ' + e.message; go.disabled = false; }
+  } catch (e) { show('Error: ' + e.message, true); go.disabled = false; }
 };
+async function endCall() {
+  if (!convId) return;
+  const id = convId; convId = null; clearInterval(tick);
+  stage.src = 'about:blank'; stage.style.display = end.style.display = timer.style.display = 'none';
+  live.classList.remove('on'); intro.style.display = 'flex'; go.disabled = false;
+  try { const r = await fetch('/end/' + id, { method: 'POST' }); show(r.ok ? 'Call ended.' : 'Call closed, but Tavus did not confirm the end.', !r.ok); }
+  catch (e) { show('Error ending call: ' + e.message, true); }
+}
+end.onclick = endCall;
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  if (k === 'e') endCall();
+});
 </script></body></html>
